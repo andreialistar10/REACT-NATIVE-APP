@@ -1,2 +1,2 @@
 export const getLogger = tag =>
-    message => console.log(`${tag} ${message}`);
+    (message, ...args) => console.log(`${tag} ${message}`, args);
