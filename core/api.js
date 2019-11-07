@@ -1,4 +1,4 @@
-export const apiUrl = 'e933f1df.ngrok.io';
+export const apiUrl = '586c7e91.ngrok.io';
 
 export const httpApiUrl = `http://${apiUrl}`;
 

@@ -1,12 +1,22 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, FlatList, Text, View} from 'react-native';
-import {getLogger} from "../core";
+import {ActivityIndicator, FlatList, Text, View, Button} from 'react-native';
+import {getLogger, navService} from "../core";
 import {Consumer} from './context';
 import Product from "./Product";
 
 const log = getLogger('ProductList');
 
 export class ProductList extends Component {
+
+    static navigationOptions = {
+      headerTitle: 'Product List',
+      headerRight: (
+          <Button
+            onPress={() => navService.navigate('productEdit')}
+            title="Add"
+          />
+      )
+    };
 
     constructor(props) {
         super(props);
