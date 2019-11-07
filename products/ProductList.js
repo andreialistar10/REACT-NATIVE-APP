@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
+import {ActivityIndicator, FlatList, Text, View} from 'react-native';
 import {getLogger} from "../core";
-import Product from "./Product";
 import {Consumer} from './context';
+import Product from "./Product";
 
 const log = getLogger('ProductList');
 
@@ -14,23 +14,21 @@ export class ProductList extends Component {
     }
 
     render() {
+        log('render');
         return (
             <Consumer>
                 {({isLoading, loadingError, products}) => (
-                    <View style={styles.container}>
+                    <View>
                         <ActivityIndicator animating={isLoading} size="large"/>
                         {loadingError && <Text> {loadingError.message || 'Loading error'}</Text>}
-                        {products && products.map(product => <Product key={product.id} product={product}/>)}
+                        {products &&
+                        <FlatList
+                            data={products.map(product => ({ ...product, key: String(product.id) }))}
+                            renderItem={({ item }) => <Product product={item}/>}
+                        />}
                     </View>
                 )}
             </Consumer>
         );
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        marginTop: 50,
-    },
-});

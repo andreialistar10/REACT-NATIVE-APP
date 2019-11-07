@@ -30,7 +30,6 @@ export class ProductStore extends Component {
         this.setState({isLoading: true, loadingError: null});
         fetch(`${httpApiUrl}/entities`)
             .then(response => {
-                log('response: ', response);
                 return response.json();
             })
             .then(json => {
