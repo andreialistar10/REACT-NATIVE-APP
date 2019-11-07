@@ -1,12 +1,16 @@
 import React from 'react';
 import { getLogger } from './core';
-import { ProductList } from "./products";
+import {ProductList, ProductStore} from "./products";
 
 const log = getLogger('App');
 
 const App = () => {
     log('render');
-    return (<ProductList/>)
+    return(
+        <ProductStore>
+            <ProductList/>
+        </ProductStore>
+    )
 };
 
 export default App;
