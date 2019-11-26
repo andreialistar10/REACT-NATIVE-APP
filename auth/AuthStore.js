@@ -1,5 +1,5 @@
 import React, { useCallback, useReducer } from 'react';
-import {getLogger, httpPost, setToken, httpPostLogin} from "../core";
+import {getLogger, setToken, httpPostLogin} from "../core";
 import { Provider } from './AuthContext';
 const log = getLogger('AuthStore');
 
