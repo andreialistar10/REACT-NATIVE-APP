@@ -1,6 +1,6 @@
 import qs from 'qs';
 
-export const apiUrl = 'cf3b592d.ngrok.io';
+export const apiUrl = 'ba11ec74.ngrok.io';
 
 export const httpApiUrl = `http://${apiUrl}/academic-courses`;
 

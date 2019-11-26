@@ -1,6 +1,6 @@
 import React from 'react';
 import {ActivityIndicator, FlatList, Text, View, Button} from 'react-native';
-import {getLogger, navService} from "../core";
+import {getLogger, navService, setToken} from "../core";
 import {ProductContext} from './ProductContext';
 import Product from "./Product";
 
@@ -19,6 +19,13 @@ export const ProductList = () =>{
                         data={products.map(product => ({ ...product, key: String(product.id) }))}
                         renderItem={({ item }) => <Product product={item}/>}
                     />}
+                    <Button
+                        onPress={() => {
+                            setToken(null);
+                            navService.navigate('AuthLoading');
+                        }}
+                        title="Logout"
+                    />
                 </View>
             )}
         </ProductContext.Consumer>
