@@ -18,7 +18,7 @@ export const ProductStore = ({ children }) =>{
     useEffect(() => {
        if (token && !products && !loadingError && !isLoading){
            log('load products started');
-           httpGet('/entities')
+           httpGet('entities')
                .then(json => {
                    log('load products succeeded');
                    setState({isLoading: false, products: json});
@@ -32,7 +32,7 @@ export const ProductStore = ({ children }) =>{
 
     const onSubmit = useCallback(async (name, price) => {
        log('post product started');
-       return httpPost('/entities',{name, price})
+       return httpPost('entities',{name, price})
            .then(json => {
                log('post product succeeded');
                setState({products: products.concat(json)});

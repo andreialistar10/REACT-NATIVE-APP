@@ -3,7 +3,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { getLogger } from '../core';
 import { AuthContext } from "./AuthContext";
 
-const log = getLogger('SignIn');
+const log = getLogger('AuthLoading');
 
 export const AuthLoading = ({ navigation }) => {
     const { onLoadToken } = useContext(AuthContext);

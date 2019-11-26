@@ -1,4 +1,6 @@
-export const apiUrl = '36e06fa7.ngrok.io';
+import qs from 'qs';
+
+export const apiUrl = 'cf3b592d.ngrok.io';
 
 export const httpApiUrl = `http://${apiUrl}/academic-courses`;
 
@@ -23,15 +25,21 @@ const buildHeaders = () => {
     return headers;
 };
 
+const buildLoginHeaders = () =>{
+    return {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+    };
+};
+
 const defaultIssue = { issue: [{error: 'Unexpected error'}] };
 
-const withErrorHandling = fetchPromise =>
-    fetchPromise.then(response => Promise.all(response.ok,response.json()))
+const withErrorHandling = fetchPromise => fetchPromise
+        .then(response => Promise.all([response.ok,response.json()]))
         .then(([responseOK, responseJson]) => {
            if (responseOK){
                return responseJson;
            }
-           log("error",responseJson);
            const message = (responseJson || defaultIssue).issue
                .map(it => it.error)
                .join('\n');
@@ -50,7 +58,16 @@ export const httpPost = (path, payload) =>
     withErrorHandling(
         fetch(`${httpApiUrl}/${path}`,{
             method: 'POST',
-            body: JSON.stringify(payload),
+            body: qs.stringify(payload),
             headers: buildHeaders(),
+        })
+    );
+
+export const httpPostLogin = (path, payload) =>
+    withErrorHandling(
+        fetch(`${httpApiUrl}/${path}`,{
+            method: 'POST',
+            body: qs.stringify(payload),
+            headers: buildLoginHeaders(),
         })
     );

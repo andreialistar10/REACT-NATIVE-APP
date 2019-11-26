@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, View, ActivityIndicator, Text, TextInput } from 'react-native';
+import { Button, View, StyleSheet, ActivityIndicator, Text, TextInput } from 'react-native';
 
 import { getLogger } from '../core';
 import { Consumer } from './AuthContext';
@@ -37,7 +37,7 @@ export const Login = ({ navigation }) => {
                     }}
                  />
              </View>
-          )};
+          )}
       </Consumer>
     );
 };

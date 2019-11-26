@@ -1,5 +1,5 @@
 import React, { useCallback, useReducer } from 'react';
-import {getLogger, httpPost, setToken} from "../core";
+import {getLogger, httpPost, setToken, httpPostLogin} from "../core";
 import { Provider } from './AuthContext';
 const log = getLogger('AuthStore');
 
@@ -23,7 +23,7 @@ function reducer(state, action) {
         case LOGIN_STARTED:
             return {...state, loginError: null, loginInProgress: true};
         case LOGIN_SUCCEEDED:
-            return {...state, token:payload.token, loginInProgress: false};
+            return {...state, token:payload.jwt, loginInProgress: false};
         case LOGIN_FAILED:
             return {...state, loginError: payload.error, loginInProgress: false};
         default:
@@ -39,7 +39,7 @@ export const AuthStore = ({ children }) => {
         return new Promise(resolve => {
             setTimeout(resolve, 1000);
         }).then(() => {
-            dispatch({type: SET_TOKEN, payload: {token: null} });
+            dispatch({type: SET_TOKEN, payload: {jwt: null} });
             return Promise.resolve(null);
         })
     }, []);
@@ -47,9 +47,10 @@ export const AuthStore = ({ children }) => {
     const onLogin = useCallback(async (username,password) => {
         log('loadToken...');
         dispatch({type: LOGIN_STARTED});
-        return httpPost('login',{username, password})
+        return httpPostLogin('login',{username, password})
             .then(tokenHolder => {
                 const {jwt} = tokenHolder;
+                console.log(jwt);
                 dispatch({ type: LOGIN_SUCCEEDED, payload: {jwt}});
                 setToken(jwt);
                 return jwt;

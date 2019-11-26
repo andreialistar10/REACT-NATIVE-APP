@@ -2,13 +2,13 @@ import React from 'react';
 import {getLogger, navService} from './core';
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {Products, ProductStore} from "./products";
-import {Auth, AuthLoading} from "./auth";
+import {Auth, AuthLoading, AuthStore} from "./auth";
 
 const log = getLogger('App');
 
 const MainNavigator = createSwitchNavigator(
-    { AuthLoading, Products, Auth},
-    { initialRouteName: 'AuthLoading' },
+    {AuthLoading, Products, Auth},
+    {initialRouteName: 'AuthLoading'},
 );
 
 const AppContainer = createAppContainer(MainNavigator);
@@ -16,11 +16,13 @@ const AppContainer = createAppContainer(MainNavigator);
 const App = () => {
     log('render');
     return (
-        <ProductStore>
-            <AppContainer ref={navigationRef => {
-                navService.setTopLevelNavigator(navigationRef);
-            }}/>
-        </ProductStore>
+        <AuthStore>
+            <ProductStore>
+                <AppContainer ref={navigationRef => {
+                    navService.setTopLevelNavigator(navigationRef);
+                }}/>
+            </ProductStore>
+        </AuthStore>
     )
 };
 
