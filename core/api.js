@@ -1,6 +1,6 @@
-export const apiUrl = '586c7e91.ngrok.io';
+export const apiUrl = '36e06fa7.ngrok.io';
 
-export const httpApiUrl = `http://${apiUrl}`;
+export const httpApiUrl = `http://${apiUrl}/academic-courses`;
 
 export const webSocketUrl = `ws://${apiUrl}`;
 

@@ -1,15 +1,15 @@
 import React from 'react';
 import {getLogger, navService} from './core';
-import {createAppContainer} from 'react-navigation';
-import {createStackNavigator} from 'react-navigation-stack';
-import {ProductEdit, ProductList, ProductStore} from "./products";
+import {createAppContainer, createSwitchNavigator} from 'react-navigation';
+import {Products, ProductStore} from "./products";
+import {Auth, AuthLoading} from "./auth";
 
 const log = getLogger('App');
 
-const MainNavigator = createStackNavigator({
-    productList: {screen: ProductList},
-    productEdit: {screen: ProductEdit},
-});
+const MainNavigator = createSwitchNavigator(
+    { AuthLoading, Products, Auth},
+    { initialRouteName: 'AuthLoading' },
+);
 
 const AppContainer = createAppContainer(MainNavigator);
 
