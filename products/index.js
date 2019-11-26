@@ -1,5 +1,12 @@
-import {ProductEdit} from "./ProductEdit";
+import React from 'react';
+import { createStackNavigator } from "react-navigation-stack";
 
-export { ProductList } from './ProductList';
-export { ProductStore } from './ProductStore';
-export {ProductEdit} from './ProductEdit';
+import { ProductEdit } from "./ProductEdit";
+import { ProductList } from "./ProductList";
+
+export const Products = createStackNavigator({
+    productList: {screen: ProductList},
+    productEdit: {screen: ProductEdit},
+});
+
+export * from './ProductStore';

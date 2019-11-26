@@ -13,12 +13,13 @@ export class ProductStore extends Component {
             isLoading: false,
             products: [],
             loadingError: null,
+            onSubmitEditing: this.handleAddProduct,
         };
     }
 
     componentDidMount() {
-        this.loadProducts();
         log('componentDidMount');
+        this.loadProducts();
     }
 
     componentWillUnmount() {
@@ -39,6 +40,26 @@ export class ProductStore extends Component {
             .catch(loadingError => {
                 log('load products failed', loadingError);
                 this.setState({isLoading: false, loadingError})
+            })
+    };
+
+    handleAddProduct = (name, price) => this.postProduct(text, price);
+
+    postProduct = (name, price) =>{
+        log('post product started');
+        return fetch(`${httpApiUrl}/entities`, {
+            method: 'POST',
+            body: JSON.stringify({ name, price }),
+        })
+            .then(response => response.json())
+            .then( json => {
+                log('post product succeeded', json);
+                return Promise.resolve();
+            })
+            .catch(error => {
+                log('post product failed');
+                console.error(error);
+                return Promise.reject();
             })
     };
 
