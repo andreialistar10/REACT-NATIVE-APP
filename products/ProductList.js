@@ -25,12 +25,12 @@ export const ProductList = () =>{
     );
 };
 
-ProductList.navigateOptions = {
+ProductList.navigationOptions = () => ({
     headerTitle: 'Product List',
     headerRight: (
         <Button
-            onPress = {() => navService.navigate('ProductEdit')}
+            onPress = {() => navService.navigate('productEdit')}
             title="Add"
         />
     )
-};
+});

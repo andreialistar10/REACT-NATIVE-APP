@@ -18,6 +18,7 @@ export const ProductStore = ({ children }) =>{
     useEffect(() => {
        if (token && !products && !loadingError && !isLoading){
            log('load products started');
+           setState({ isLoading: true, loadingError: null });
            httpGet('entities')
                .then(json => {
                    log('load products succeeded');
@@ -35,7 +36,7 @@ export const ProductStore = ({ children }) =>{
        return httpPost('entities',{name, price})
            .then(json => {
                log('post product succeeded');
-               setState({products: products.concat(json)});
+               setState({isLoading: false ,products: products.concat(json)});
                return Promise.resolve(json);
            })
            .catch(error => {

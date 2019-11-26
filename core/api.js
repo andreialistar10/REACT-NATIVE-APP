@@ -58,7 +58,7 @@ export const httpPost = (path, payload) =>
     withErrorHandling(
         fetch(`${httpApiUrl}/${path}`,{
             method: 'POST',
-            body: qs.stringify(payload),
+            body: JSON.stringify(payload),
             headers: buildHeaders(),
         })
     );
