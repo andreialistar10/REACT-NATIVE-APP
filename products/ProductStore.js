@@ -1,74 +1,54 @@
-import React, {Component} from 'react';
-import {getLogger, httpApiUrl} from "../core";
-import {Provider} from './context';
+import React, {useCallback, useContext, useEffect} from 'react';
+import {getLogger, httpGet, httpPost} from "../core";
+import { ProductContext } from './ProductContext';
+import { AuthContext } from "../auth/AuthContext";
 
 const log = getLogger('ProductStore');
 
-export class ProductStore extends Component {
+const initialState = {
+    isLoading: false,
+    products: null,
+    loadingError: null,
+};
 
-    constructor(props) {
-        super(props);
-        log('constructor');
-        this.state = {
-            isLoading: false,
-            products: [],
-            loadingError: null,
-            onSubmitEditing: this.handleAddProduct,
-        };
-    }
+export const ProductStore = ({ children }) =>{
+    const [state, setState] = React.useState(initialState);
+    const { isLoading, products, loadingError } = state;
+    const { token } = useContext(AuthContext);
+    useEffect(() => {
+       if (token && !products && !loadingError && !isLoading){
+           log('load products started');
+           httpGet('/entities')
+               .then(json => {
+                   log('load products succeeded');
+                   setState({isLoading: false, products: json});
+               })
+               .catch(loadingError => {
+                   log('load products failed');
+                   setState({ isLoading: false, loadingError })
+               });
+       }
+    }, [token]);
 
-    componentDidMount() {
-        log('componentDidMount');
-        this.loadProducts();
-    }
+    const onSubmit = useCallback(async (name, price) => {
+       log('post product started');
+       return httpPost('/entities',{name, price})
+           .then(json => {
+               log('post product succeeded');
+               setState({products: products.concat(json)});
+               return Promise.resolve(json);
+           })
+           .catch(error => {
+               log('post product failed');
+               return Promise.reject(error);
+           })
+    });
 
-    componentWillUnmount() {
-        log('componentWillUnmount');
-    }
-
-    loadProducts = () => {
-        log("load products started");
-        this.setState({isLoading: true, loadingError: null});
-        fetch(`${httpApiUrl}/entities`)
-            .then(response => {
-                return response.json();
-            })
-            .then(json => {
-                log('load products succeeded', json);
-                this.setState({isLoading: false, products: json})
-            })
-            .catch(loadingError => {
-                log('load products failed', loadingError);
-                this.setState({isLoading: false, loadingError})
-            })
-    };
-
-    handleAddProduct = (name, price) => this.postProduct(text, price);
-
-    postProduct = (name, price) =>{
-        log('post product started');
-        return fetch(`${httpApiUrl}/entities`, {
-            method: 'POST',
-            body: JSON.stringify({ name, price }),
-        })
-            .then(response => response.json())
-            .then( json => {
-                log('post product succeeded', json);
-                return Promise.resolve();
-            })
-            .catch(error => {
-                log('post product failed');
-                console.error(error);
-                return Promise.reject();
-            })
-    };
-
-    render() {
-        log('render');
-        return (
-            <Provider value={this.state}>
-                {this.props.children}
-            </Provider>
-        )
-    }
-}
+    log('render', isLoading);
+    const value = { ...state, onSubmit };
+    return (
+        <ProductContext.Provider value={value}>
+            {children}
+        </ProductContext.Provider>
+    )
+};

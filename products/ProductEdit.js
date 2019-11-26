@@ -1,6 +1,7 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {View, TextInput, Button} from 'react-native';
-import {getLogger} from "../core";
+import {getLogger, navService} from "../core";
+import { ProductContext } from "./ProductContext";
 
 const log = getLogger('ItemEdit');
 
@@ -8,7 +9,7 @@ export const ProductEdit = ({ name = '', price = '', navigation}) => {
   const [nameValue, onChangedName] = React.useState(name);
   const [priceValue, onChangedPrice] = React.useState(price);
   return(
-      <Consumer>
+      <ProductContext.Consumer>
           {({onSubmit}) => (
               <View>
                   <TextInput
@@ -28,10 +29,15 @@ export const ProductEdit = ({ name = '', price = '', navigation}) => {
                     title = "Add item"
                     onPress = {() => {
                         onSubmit(nameValue, priceValue)
+                            .then(() => navigation.goBack())
                   }}
                   />
               </View>
           )}
-      </Consumer>
+      </ProductContext.Consumer>
   )
 };
+
+ProductEdit.navigationOptions = () => ({
+   headerTitle: 'Product edit',
+});

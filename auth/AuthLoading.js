@@ -1,31 +1,26 @@
-import React, { Component } from 'react';
-import { ActivityIndicator, StatusBar, View } from 'react-native';
+import React, { useContext, useEffect } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { getLogger } from '../core';
+import { AuthContext } from "./AuthContext";
 
 const log = getLogger('SignIn');
 
-export class AuthLoading extends Component {
-    componentDidMount() {
-        log('didMount');
-        this.fetchToken();
-    }
+export const AuthLoading = ({ navigation }) => {
+    const { onLoadToken } = useContext(AuthContext);
 
-    fetchToken = async () => {
-        log('fetchToken...');
-        const response = await new Promise(resolve =>
-            setTimeout(resolve, 3000)
-        );
-        log('fetchToken succeeded');
-        this.props.navigation.navigate(response ? 'Todo' : 'Auth');
-    };
+    useEffect(() => {
+        log('onLoadToken...');
+        onLoadToken()
+            .then(token =>{
+                log('onLoadToken succeeded');
+                navigation.navigate(token ? 'Products' : 'Auth');
+            });
+    }, []);
 
-    render() {
-        log('render');
-        return (
-            <View>
-                <ActivityIndicator />
-                <StatusBar barStyle="default" />
-            </View>
-        );
-    }
-}
+    log('render');
+    return (
+        <View>
+            <ActivityIndicator />
+        </View>
+    )
+};

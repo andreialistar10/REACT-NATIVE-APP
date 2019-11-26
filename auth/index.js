@@ -7,3 +7,4 @@ export const Auth = createStackNavigator({
 });
 
 export * from './AuthLoading';
+export * from './AuthStore';
