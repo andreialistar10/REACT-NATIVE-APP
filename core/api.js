@@ -4,6 +4,8 @@ import * as encoding from 'text-encoding';
 
 let SockJS = require('sockjs-client/dist/sockjs.js');
 
+const ADD = "ADD";
+const UPDATE = "UPDATE";
 const apiUrl = '192.168.100.3:8080';
 const notificationsUrl = `192.168.100.3:8099/ws`;
 
@@ -15,9 +17,6 @@ export const defaultHeaders = {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
 };
-
-const ADD = "ADD";
-const UPDATE = "UPDATE";
 
 let token;
 let client;
