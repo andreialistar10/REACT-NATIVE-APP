@@ -9,12 +9,11 @@ const initialState = {
     isLoading: false,
     products: null,
     loadingError: null,
-    client: null,
 };
 
 export const ProductStore = ({children}) => {
     const [state, setState] = React.useState(initialState);
-    const {isLoading, products, loadingError, client} = state;
+    const {isLoading, products, loadingError} = state;
     const {token} = useContext(AuthContext);
     useEffect(() => {
         if (token && !products && !loadingError && !isLoading) {
@@ -46,8 +45,13 @@ export const ProductStore = ({children}) => {
             })
     });
 
+    const addNewProduct = useCallback(async (message) => {
+       message = JSON.parse(message.body);
+       setState({isLoading: false, products: products.concat(message)});
+    });
+
     log('render', isLoading);
-    const value = {...state, onSubmit};
+    const value = {...state, onSubmit, addNewProduct};
     return (
         <ProductContext.Provider value={value}>
             {children}

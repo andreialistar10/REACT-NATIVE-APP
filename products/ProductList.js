@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useContext } from 'react';
 import {ActivityIndicator, FlatList, Text, View, Button} from 'react-native';
 import {openWebSocket, closeWebSocket, getLogger, navService, setToken} from "../core";
 import {ProductContext} from './ProductContext';
@@ -8,9 +8,9 @@ const log = getLogger('ProductList');
 
 export const ProductList = () =>{
     log('render');
-    // const { connectToWebSocket, disconnectFromWebSocket } = useContext(ProductContext);
+    const { addNewProduct } = useContext(ProductContext);
     useEffect(() =>{
-        openWebSocket();
+        openWebSocket(addNewProduct);
         return () => {
             closeWebSocket();
         }
