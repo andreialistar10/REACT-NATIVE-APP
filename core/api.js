@@ -1,10 +1,11 @@
 import qs from 'qs';
 
-export const apiUrl = 'ba11ec74.ngrok.io';
+const apiUrl = '192.168.100.3:8080';
+const notificationsUrl = `192.168.100.3:8099/ws`;
 
 export const httpApiUrl = `http://${apiUrl}/academic-courses`;
 
-export const webSocketUrl = `ws://${apiUrl}`;
+export const webSocketUrl = `http://${notificationsUrl}`;
 
 export const defaultHeaders = {
     'Accept': 'application/json',
@@ -17,7 +18,7 @@ export const setToken = value => {
     token = value;
 };
 
-const buildHeaders = () => {
+export const buildHeaders = () => {
     const headers = {...defaultHeaders };
     if (token){
         headers.Authorization =`Bearer ${token}`;
