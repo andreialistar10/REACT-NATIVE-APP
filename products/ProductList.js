@@ -8,9 +8,9 @@ const log = getLogger('ProductList');
 
 export const ProductList = () =>{
     log('render');
-    const { addNewProduct } = useContext(ProductContext);
+    const { addNewProduct, updateProduct } = useContext(ProductContext);
     useEffect(() =>{
-        openWebSocket(addNewProduct);
+        openWebSocket(addNewProduct, updateProduct);
         return () => {
             closeWebSocket();
         }

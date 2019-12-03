@@ -46,12 +46,18 @@ export const ProductStore = ({children}) => {
     });
 
     const addNewProduct = useCallback(async (message) => {
-       message = JSON.parse(message.body);
        setState({isLoading: false, products: products.concat(message)});
     });
 
+    const updateProduct = useCallback(async (message) =>{
+       const newProducts = products.map(product => {
+           return product.id === message.id ? message : product;
+       });
+       setState({isLoading: false, products: newProducts });
+    });
+
     log('render', isLoading);
-    const value = {...state, onSubmit, addNewProduct};
+    const value = {...state, onSubmit, addNewProduct, updateProduct};
     return (
         <ProductContext.Provider value={value}>
             {children}

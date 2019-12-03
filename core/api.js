@@ -16,6 +16,9 @@ export const defaultHeaders = {
     'Content-Type': 'application/json'
 };
 
+const ADD = "ADD";
+const UPDATE = "UPDATE";
+
 let token;
 let client;
 
@@ -105,12 +108,18 @@ const buildClientSocket = () => {
     });
 };
 
-export const openWebSocket = (callbackForNotify = (message) => { console.log(message.body) }) => {
+export const openWebSocket = (callbackAdd = (message) => { console.log(message) }, callbackUpdate = (message) => { console.log(message) } ) => {
 
     if (!client)
         buildClientSocket();
     client.onConnect = () => {
-        client.subscribe('/topic/messages',callbackForNotify);
+        client.subscribe('/topic/messages',(message) => {
+            message = JSON.parse(message.body);
+            if (message.type === ADD)
+                callbackAdd(message.entity);
+            else if (message.type === UPDATE)
+                callbackUpdate(message.entity);
+        });
     };
     client.activate();
 };
