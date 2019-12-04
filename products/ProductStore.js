@@ -65,7 +65,7 @@ export const ProductStore = ({children}) => {
 
     const logout = useCallback(async () => {
         setState({isLoading: false, products: null});
-        removeToken();
+        return removeToken();
     });
 
     log('render', isLoading);
