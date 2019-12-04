@@ -1,6 +1,6 @@
 import React, { useEffect, useContext } from 'react';
 import {ActivityIndicator, FlatList, Text, View, Button} from 'react-native';
-import {openWebSocket, closeWebSocket, getLogger, navService, setToken} from "../core";
+import {openWebSocket, closeWebSocket, getLogger, navService} from "../core";
 import {ProductContext} from './ProductContext';
 import Product from "./Product";
 
@@ -8,7 +8,7 @@ const log = getLogger('ProductList');
 
 export const ProductList = () =>{
     log('render');
-    const { addNewProduct, updateProduct } = useContext(ProductContext);
+    const { addNewProduct, updateProduct, logout } = useContext(ProductContext);
     useEffect(() =>{
         openWebSocket(addNewProduct, updateProduct);
         return () => {
@@ -28,8 +28,9 @@ export const ProductList = () =>{
                     />}
                     <Button
                         onPress={() => {
-                            setToken(null);
-                            navService.navigate('AuthLoading');
+                            logout().then(() =>{
+                                navService.navigate('AuthLoading');
+                            });
                         }}
                         title="Logout"
                     />

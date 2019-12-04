@@ -1,5 +1,6 @@
 import qs from 'qs';
 import {Client} from '@stomp/stompjs';
+import {getToken} from './localStorage';
 import * as encoding from 'text-encoding';
 
 let SockJS = require('sockjs-client/dist/sockjs.js');
@@ -18,17 +19,12 @@ export const defaultHeaders = {
     'Content-Type': 'application/json'
 };
 
-let token;
 let client;
 
-export const setToken = value => {
-    token = value;
-};
-
-export const buildHeaders = () => {
+export const buildHeaders = (value) => {
     const headers = {...defaultHeaders};
-    if (token) {
-        headers.Authorization = `Bearer ${token}`;
+    if (value) {
+        headers.Authorization = `Bearer ${value}`;
     }
     return headers;
 };
@@ -54,21 +50,25 @@ const withErrorHandling = fetchPromise => fetchPromise
         throw new Error(message);
     });
 
-export const httpGet = path =>
-    withErrorHandling(
-        fetch(`${httpApiUrl}/${path}`, {
-            method: 'GET',
-            headers: buildHeaders(),
-        })
-    );
+export const httpGet = path => {
+
+    return withErrorHandling(
+        getToken()
+            .then((jwt) => fetch(`${httpApiUrl}/${path}`, {
+                method: 'GET',
+                headers: buildHeaders(jwt),
+            }))
+    )
+};
 
 export const httpPost = (path, payload) =>
     withErrorHandling(
-        fetch(`${httpApiUrl}/${path}`, {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            headers: buildHeaders(),
-        })
+        getToken()
+            .then((jwt) => fetch(`${httpApiUrl}/${path}`, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: buildHeaders(jwt),
+            }))
     );
 
 export const httpPostLogin = (path, payload) =>
@@ -107,12 +107,16 @@ const buildClientSocket = () => {
     });
 };
 
-export const openWebSocket = (callbackAdd = (message) => { console.log(message) }, callbackUpdate = (message) => { console.log(message) } ) => {
+export const openWebSocket = (callbackAdd = (message) => {
+    console.log(message)
+}, callbackUpdate = (message) => {
+    console.log(message)
+}) => {
 
     if (!client)
         buildClientSocket();
     client.onConnect = () => {
-        client.subscribe('/topic/messages',(message) => {
+        client.subscribe('/topic/messages', (message) => {
             message = JSON.parse(message.body);
             if (message.type === ADD)
                 callbackAdd(message.entity);

@@ -1,8 +1,7 @@
 import React, {useCallback, useContext, useEffect} from 'react';
-import { getLogger, httpGet, httpPost} from "../core";
+import {addAllProducts, getLogger, httpGet, httpPost, insertProduct, removeAllProducts, updateProductLocalStorage, removeToken} from "../core";
 import {ProductContext} from './ProductContext';
 import {AuthContext} from "../auth/AuthContext";
-import { AsyncStorage }from 'react-native';
 
 const log = getLogger('ProductStore');
 
@@ -25,20 +24,10 @@ export const ProductStore = ({children}) => {
                     log('load products succeeded');
                     setState({isLoading: false, products: json});
 
-                     return AsyncStorage.getAllKeys()
-                        .then(keys => keys.filter(([id, value]) => id !== 'token'))
-                        .then(keys => {
-                            if (keys.length !== 0)
-                                AsyncStorage.multiRemove(keys);
-                            return Promise.resolve(null);
-                        })
+                    return removeAllProducts()
                         .then(() => json);
                 })
-                .then(json => [json[json.length - 1].id,json.map(product => ["" + product.id, JSON.stringify(product)])])
-                .then(([lastIndex, products]) => {
-                    return AsyncStorage.multiSet(products)
-                        .then(() => AsyncStorage.setItem("lastIndex", "" + lastIndex))
-                })
+                .then((products) => addAllProducts(products))
                 .catch(loadingError => {
                     log('load products failed');
                     setState({isLoading: false, loadingError})
@@ -52,8 +41,8 @@ export const ProductStore = ({children}) => {
             .then(json => {
                 log('post product succeeded');
                 setState({isLoading: false, products: products.concat(json)});
-                AsyncStorage.setItem('' + json.id, JSON.stringify(json));
-                // return Promise.resolve(json);
+                insertProduct(json)
+                    .then(() => json);
             })
             .catch(error => {
                 log('post product failed');
@@ -62,21 +51,25 @@ export const ProductStore = ({children}) => {
     });
 
     const addNewProduct = useCallback(async (message) => {
-       setState({isLoading: false, products: products.concat(message)});
-       AsyncStorage.setItem(message.id + '', JSON.stringify(message))
-           .then(() => AsyncStorage.setItem("lastIndex",message.id + ''))
+        setState({isLoading: false, products: products.concat(message)});
+        insertProduct(message);
     });
 
-    const updateProduct = useCallback(async (message) =>{
-       const newProducts = products.map(product => {
-           return product.id === message.id ? message : product;
-       });
-       setState({isLoading: false, products: newProducts });
-       AsyncStorage.setItem(message.id + '', JSON.stringify(message));
+    const updateProduct = useCallback(async (message) => {
+        const newProducts = products.map(product => {
+            return product.id === message.id ? message : product;
+        });
+        setState({isLoading: false, products: newProducts});
+        updateProductLocalStorage(message);
+    });
+
+    const logout = useCallback(async () => {
+        setState({isLoading: false, products: null});
+        removeToken();
     });
 
     log('render', isLoading);
-    const value = {...state, onSubmit, addNewProduct, updateProduct};
+    const value = {...state, onSubmit, addNewProduct, updateProduct, logout};
     return (
         <ProductContext.Provider value={value}>
             {children}
