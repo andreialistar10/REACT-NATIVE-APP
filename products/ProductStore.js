@@ -10,7 +10,8 @@ import {
     insertProduct,
     isConnectedToWifi,
     removeAllProducts,
-    updateProductLocalStorage
+    updateProductLocalStorage,
+    insertUnsavedProduct
 } from "../core";
 import {ProductContext} from './ProductContext';
 import {AuthContext} from "../auth/AuthContext";
@@ -66,17 +67,30 @@ export const ProductStore = ({children}) => {
 
     const onSubmit = useCallback(async (name, price) => {
         log('post product started');
-        return httpPost('entities', {name, price})
-            .then(json => {
-                log('post product succeeded');
-                setState({isLoading: false, products: products.concat(json)});
-                insertProduct(json)
-                    .then(() => json);
-            })
-            .catch(error => {
-                log('post product failed');
-                return Promise.reject(error);
-            })
+        return isConnectedToWifi()
+            .then(value => {
+                if (value) {
+                    log('Online storage started...');
+                    return httpPost('entities', {name, price})
+                        .then(json => {
+                            log('post product succeeded');
+                            setState({isLoading: false, products: products.concat(json)});
+                            insertProduct(json)
+                                .then(() => json);
+                        })
+                        .catch(error => {
+                            log('post product failed');
+                            return Promise.reject(error);
+                        })
+                }
+                log('Offline storage started...');
+                return insertUnsavedProduct({name: name, price: price})
+                    .then(product =>{
+                        log('Offline storage succeeded');
+                        setState({isLoading: false, products: products.concat(product)});
+                        return Promise.resolve(product);
+                    })
+            });
     });
 
     const addNewProduct = useCallback(async (message) => {

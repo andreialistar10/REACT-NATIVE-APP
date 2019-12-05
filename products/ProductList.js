@@ -14,11 +14,11 @@ export const ProductList = () =>{
         isConnectedToWifi()
             .then((value) => {
                 if (value) {
-                    console.log("AICI");
+                    log('ONLINE SUPPORT');
                     openWebSocket(addNewProduct, updateProduct);
                 }
                 else {
-                    console.log("NU AICI");
+                    log('OFFLINE SUPPORT');
                     closeWebSocket();
                     getAllProductsFromLocalStorage();
                 }

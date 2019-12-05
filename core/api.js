@@ -66,11 +66,13 @@ export const httpGet = path => {
 export const httpPost = (path, payload) =>
     withErrorHandling(
         getToken()
-            .then((jwt) => fetch(`${httpApiUrl}/${path}`, {
-                method: 'POST',
-                body: JSON.stringify(payload),
-                headers: buildHeaders(jwt),
-            }))
+            .then((jwt) => {
+                return fetch(`${httpApiUrl}/${path}`, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: buildHeaders(jwt),
+                });
+            })
     );
 
 export const httpPostLogin = (path, payload) =>
