@@ -1,6 +1,6 @@
 import React, { useEffect, useContext } from 'react';
 import {ActivityIndicator, FlatList, Text, View, Button} from 'react-native';
-import {openWebSocket, closeWebSocket, getLogger, navService} from "../core";
+import {openWebSocket, closeWebSocket, getLogger, navService, isConnectedToWifi} from "../core";
 import {ProductContext} from './ProductContext';
 import Product from "./Product";
 
@@ -8,9 +8,22 @@ const log = getLogger('ProductList');
 
 export const ProductList = () =>{
     log('render');
-    const { addNewProduct, updateProduct, logout } = useContext(ProductContext);
+    const { addNewProduct, updateProduct, logout, getAllProductsFromLocalStorage } = useContext(ProductContext);
     useEffect(() =>{
-        openWebSocket(addNewProduct, updateProduct);
+
+        isConnectedToWifi()
+            .then((value) => {
+                if (value) {
+                    console.log("AICI");
+                    openWebSocket(addNewProduct, updateProduct);
+                }
+                else {
+                    console.log("NU AICI");
+                    closeWebSocket();
+                    getAllProductsFromLocalStorage();
+                }
+            });
+
         return () => {
             closeWebSocket();
         }

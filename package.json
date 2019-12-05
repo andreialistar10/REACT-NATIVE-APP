@@ -20,7 +20,8 @@
     "react-navigation": "^4.0.10",
     "react-navigation-stack": "^1.10.3",
     "sockjs-client": "^1.4.0",
-    "text-encoding": "^0.7.0"
+    "text-encoding": "^0.7.0",
+    "@react-native-community/netinfo": "~3.2.1"
   },
   "devDependencies": {
     "babel-preset-expo": "^7.1.0"

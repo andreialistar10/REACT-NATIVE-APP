@@ -30,7 +30,20 @@ export const updateToken = (token) => AsyncStorage.setItem(TOKEN_ID, token);
 
 export const getToken = () => AsyncStorage.getItem(TOKEN_ID);
 
-export const removeToken = () => AsyncStorage.removeItem(TOKEN_ID);
+export const clearStorage = () => AsyncStorage.clear();
+
+export const getAllProducts = () => {
+  return AsyncStorage.getAllKeys()
+      .then(keys => {
+          return keys.filter(id => id !==TOKEN_ID && id !==LAST_INDEX_ID)
+      })
+      .then(keys => {
+          console.log(keys);
+          if (keys.length !== 0)
+              return AsyncStorage.multiGet(keys);
+          return Promise.resolve(null);
+      })
+};
 
 export const insertProduct = (product) => {
     return updateProductLocalStorage(product)

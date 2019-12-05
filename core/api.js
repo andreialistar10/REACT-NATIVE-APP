@@ -7,8 +7,9 @@ let SockJS = require('sockjs-client/dist/sockjs.js');
 
 const ADD = "ADD";
 const UPDATE = "UPDATE";
-const apiUrl = '192.168.100.3:8080';
-const notificationsUrl = `192.168.100.3:8099/ws`;
+const apiIp = '192.168.100.3';
+const apiUrl = `${apiIp}:8080`;
+const notificationsUrl = `${apiIp}:8099/ws`;
 
 export const httpApiUrl = `http://${apiUrl}/academic-courses`;
 
@@ -20,6 +21,7 @@ export const defaultHeaders = {
 };
 
 let client;
+let connectedToWebSocket = false;
 
 export const buildHeaders = (value) => {
     const headers = {...defaultHeaders};
@@ -112,7 +114,8 @@ export const openWebSocket = (callbackAdd = (message) => {
 }, callbackUpdate = (message) => {
     console.log(message)
 }) => {
-
+    if (connectedToWebSocket)
+        return;
     if (!client)
         buildClientSocket();
     client.onConnect = () => {
@@ -125,8 +128,13 @@ export const openWebSocket = (callbackAdd = (message) => {
         });
     };
     client.activate();
+    connectedToWebSocket = true;
 };
 
 export const closeWebSocket = () => {
-    client.deactivate();
+
+    if (connectedToWebSocket) {
+        client.deactivate();
+        connectedToWebSocket = false;
+    }
 };

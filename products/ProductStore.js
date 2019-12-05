@@ -1,5 +1,17 @@
 import React, {useCallback, useContext, useEffect} from 'react';
-import {addAllProducts, getLogger, httpGet, httpPost, insertProduct, removeAllProducts, updateProductLocalStorage, removeToken} from "../core";
+import {
+    addAllProducts,
+    addEventWhenConnectedToWifi,
+    clearStorage,
+    getAllProducts,
+    getLogger,
+    httpGet,
+    httpPost,
+    insertProduct,
+    isConnectedToWifi,
+    removeAllProducts,
+    updateProductLocalStorage
+} from "../core";
 import {ProductContext} from './ProductContext';
 import {AuthContext} from "../auth/AuthContext";
 
@@ -9,31 +21,48 @@ const initialState = {
     isLoading: false,
     products: null,
     loadingError: null,
+    connectedToWifi: false,
 };
 
 export const ProductStore = ({children}) => {
     const [state, setState] = React.useState(initialState);
     const {isLoading, products, loadingError} = state;
     const {token} = useContext(AuthContext);
+    const offline = () => {
+        log("Notify offline");
+        setState({connectedToWifi: false});
+    };
+    const online = () => {
+        log("Notify online");
+        setState({connectedToWifi: true});
+    };
     useEffect(() => {
-        if (token && !products && !loadingError && !isLoading) {
-            log('load products started');
-            setState({isLoading: true, loadingError: null});
-            httpGet('entities')
-                .then(json => {
-                    log('load products succeeded');
-                    setState({isLoading: false, products: json});
+        const unsubscribe = addEventWhenConnectedToWifi(online, offline);
+        isConnectedToWifi()
+            .then((value) => {
+                if (token && !products && !loadingError && !isLoading && value) {
+                    log('load products started');
+                    setState({isLoading: true, loadingError: null, connectedToWifi: true});
+                    httpGet('entities')
+                        .then(json => {
+                            log('load products succeeded');
+                            setState({isLoading: false, products: json});
 
-                    return removeAllProducts()
-                        .then(() => json);
-                })
-                .then((products) => addAllProducts(products))
-                .catch(loadingError => {
-                    log('load products failed');
-                    setState({isLoading: false, loadingError})
-                });
+                            return removeAllProducts()
+                                .then(() => json);
+                        })
+                        .then((products) => addAllProducts(products))
+                        .catch(loadingError => {
+                            log('load products failed');
+                            setState({isLoading: false, loadingError})
+                        });
+                }
+            });
+
+        return () => {
+            unsubscribe();
         }
-    }, [token]);
+    });
 
     const onSubmit = useCallback(async (name, price) => {
         log('post product started');
@@ -65,11 +94,27 @@ export const ProductStore = ({children}) => {
 
     const logout = useCallback(async () => {
         setState({isLoading: false, products: null});
-        return removeToken();
+        return clearStorage();
+    });
+
+    const getAllProductsFromLocalStorage = useCallback(async () => {
+        log('getAllProducts started');
+        getAllProducts()
+            .then(products => {
+                if (!products)
+                    return;
+                products = products.map(([id, product]) => JSON.parse(product));
+                setState({isLoading: false, products: products})
+            })
+            .catch(error => {
+                log('getAllProducts failed');
+                log(error);
+                return Promise.reject(null);
+            });
     });
 
     log('render', isLoading);
-    const value = {...state, onSubmit, addNewProduct, updateProduct, logout};
+    const value = {...state, onSubmit, addNewProduct, updateProduct, logout, getAllProductsFromLocalStorage};
     return (
         <ProductContext.Provider value={value}>
             {children}
