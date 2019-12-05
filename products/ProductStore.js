@@ -4,14 +4,15 @@ import {
     addEventWhenConnectedToWifi,
     clearStorage,
     getAllProducts,
+    getAllUnsavedProducts,
     getLogger,
     httpGet,
     httpPost,
     insertProduct,
+    insertUnsavedProduct,
     isConnectedToWifi,
     removeAllProducts,
-    updateProductLocalStorage,
-    insertUnsavedProduct
+    updateProductLocalStorage
 } from "../core";
 import {ProductContext} from './ProductContext';
 import {AuthContext} from "../auth/AuthContext";
@@ -44,19 +45,31 @@ export const ProductStore = ({children}) => {
                 if (token && !products && !loadingError && !isLoading && value) {
                     log('load products started');
                     setState({isLoading: true, loadingError: null, connectedToWifi: true});
-                    httpGet('entities')
-                        .then(json => {
-                            log('load products succeeded');
-                            setState({isLoading: false, products: json});
-
-                            return removeAllProducts()
-                                .then(() => json);
+                    getAllUnsavedProducts()
+                        .then(products => {
+                            log('save local persistence started...');
+                            if (!products)
+                                return Promise.resolve(null);
+                            products = products.map(product => httpPost('entities', product));
+                            return Promise.all(products);
                         })
-                        .then((products) => addAllProducts(products))
-                        .catch(loadingError => {
-                            log('load products failed');
-                            setState({isLoading: false, loadingError})
+                        .then((products) => {
+                            log('save local persistence succeeded');
+                            httpGet('entities')
+                                .then(json => {
+                                    log('load products succeeded');
+                                    setState({isLoading: false, products: json});
+
+                                    return removeAllProducts()
+                                        .then(() => json);
+                                })
+                                .then((products) => addAllProducts(products))
+                                .catch(loadingError => {
+                                    log('load products failed');
+                                    setState({isLoading: false, loadingError})
+                                });
                         });
+
                 }
             });
 
@@ -85,7 +98,7 @@ export const ProductStore = ({children}) => {
                 }
                 log('Offline storage started...');
                 return insertUnsavedProduct({name: name, price: price})
-                    .then(product =>{
+                    .then(product => {
                         log('Offline storage succeeded');
                         setState({isLoading: false, products: products.concat(product)});
                         return Promise.resolve(product);

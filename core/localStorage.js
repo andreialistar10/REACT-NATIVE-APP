@@ -51,9 +51,18 @@ export const getAllUnsavedProducts = () => {
         .then(products => {
             if (!products)
                 return Promise.resolve(null);
-            products = products.map(([id, product]) => JSON.parse(product))
+            products = products
+                .map(([id, product]) => {
+                    product = JSON.parse(product);
+                    delete product.id;
+                    return product;
+                })
                 .filter((product) => {
                     return product.saved === NOT_SAVED_FLAG;
+                })
+                .map(product => {
+                    delete product.saved;
+                    return product;
                 });
             return Promise.resolve(products);
         })
