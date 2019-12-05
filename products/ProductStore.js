@@ -5,7 +5,7 @@ import {
     clearStorage,
     getAllProducts,
     getAllUnsavedProducts,
-    getLogger,
+    getLogger, getToken,
     httpGet,
     httpPost,
     insertProduct,
@@ -42,35 +42,37 @@ export const ProductStore = ({children}) => {
         const unsubscribe = addEventWhenConnectedToWifi(online, offline);
         isConnectedToWifi()
             .then((value) => {
-                if (token && !products && !loadingError && !isLoading && value) {
-                    log('load products started');
-                    setState({isLoading: true, loadingError: null, connectedToWifi: true});
-                    getAllUnsavedProducts()
-                        .then(products => {
-                            log('save local persistence started...');
-                            if (!products)
-                                return Promise.resolve(null);
-                            products = products.map(product => httpPost('entities', product));
-                            return Promise.all(products);
-                        })
-                        .then((products) => {
-                            log('save local persistence succeeded');
-                            httpGet('entities')
-                                .then(json => {
-                                    log('load products succeeded');
-                                    setState({isLoading: false, products: json});
-
-                                    return removeAllProducts()
-                                        .then(() => json);
+                getToken()
+                    .then((token) =>{
+                        if (token && !products && !loadingError && !isLoading && value) {
+                            log('load products started');
+                            setState({isLoading: true, loadingError: null, connectedToWifi: true});
+                            getAllUnsavedProducts()
+                                .then(products => {
+                                    log('save local persistence started...');
+                                    if (!products)
+                                        return Promise.resolve(null);
+                                    products = products.map(product => httpPost('entities', product));
+                                    return Promise.all(products);
                                 })
-                                .then((products) => addAllProducts(products))
-                                .catch(loadingError => {
-                                    log('load products failed');
-                                    setState({isLoading: false, loadingError})
-                                });
-                        });
+                                .then((products) => {
+                                    log('save local persistence succeeded');
+                                    httpGet('entities')
+                                        .then(json => {
+                                            log('load products succeeded');
+                                            setState({isLoading: false, products: json});
 
-                }
+                                            return removeAllProducts()
+                                                .then(() => json);
+                                        })
+                                        .then((products) => addAllProducts(products))
+                                        .catch(loadingError => {
+                                            log('load products failed');
+                                            setState({isLoading: false, loadingError})
+                                        });
+                                });
+                        }
+                    });
             });
 
         return () => {
