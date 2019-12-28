@@ -13,11 +13,11 @@ import {
     isConnectedToWifi,
     removeAllProducts,
     updateProductLocalStorage,
+    findCurrentLocation
 } from "../core";
 import {ProductContext} from './ProductContext';
 import {AuthContext} from "../auth/AuthContext";
-import * as Location from 'expo-location';
-import * as Permissions from 'expo-permissions';
+
 
 const log = getLogger('ProductStore');
 
@@ -145,14 +145,14 @@ export const ProductStore = ({children}) => {
     });
 
     const getCurrentLocation = useCallback(async () => {
-        log('getCurrentLocation started');
-        let { status } = await Permissions.askAsync(Permissions.LOCATION);
-        if (status !== 'granted') {
-            return Promise.reject(null);
-        }
-        let location = await Location.getCurrentPositionAsync({});
-        const {latitude, longitude} = location.coords;
-        return Promise.resolve({latitude, longitude});
+        log('getCurrentLocation started...');
+        return findCurrentLocation()
+            .then(location => {
+                log('getCurrentLocation finished...');
+                log(location);
+                const {latitude,longitude} = location.coords;
+                return Promise.resolve({latitude,longitude});
+            });
     });
 
     log('render', isLoading);

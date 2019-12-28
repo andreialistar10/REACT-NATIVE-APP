@@ -1,9 +1,12 @@
 import { getLogger } from "../core";
 import React, { useState, useContext, useEffect } from "react";
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
 import { ProductContext } from './ProductContext';
 import MapView from 'react-native-maps';
 
+const { height, width } = Dimensions.get( 'window' );
+const LATITUDE_DELTA = 0.005;
+const LONGITUDE_DELTA = LATITUDE_DELTA * (width / height);
 const log = getLogger('MyMap');
 
 const initialState = {
@@ -41,9 +44,10 @@ export const MyMap = () => {
                         initialRegion = {{
                             latitude: latitude,
                             longitude: longitude,
-                            latitudeDelta: 0.0922,
-                            longitudeDelta: 0.0421,
+                            latitudeDelta: LATITUDE_DELTA,
+                            longitudeDelta: LONGITUDE_DELTA
                         }}
+
                         showsUserLocation={true}
                     />}
                 </View>
