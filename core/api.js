@@ -7,7 +7,7 @@ let SockJS = require('sockjs-client/dist/sockjs.js');
 
 const ADD = "ADD";
 const UPDATE = "UPDATE";
-const apiIp = '192.168.100.3';
+const apiIp = '192.168.1.10';
 const apiUrl = `${apiIp}:8080`;
 const notificationsUrl = `${apiIp}:8099/ws`;
 

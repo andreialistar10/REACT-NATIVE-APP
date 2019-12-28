@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from 'react';
-import {ActivityIndicator, FlatList, Text, View, Button} from 'react-native';
+import {ActivityIndicator, FlatList, Text, View, Button, StyleSheet} from 'react-native';
 import {openWebSocket, closeWebSocket, getLogger, navService, isConnectedToWifi} from "../core";
 import {ProductContext} from './ProductContext';
 import Product from "./Product";
@@ -56,9 +56,24 @@ export const ProductList = () =>{
 ProductList.navigationOptions = () => ({
     headerTitle: 'Product List',
     headerRight: (
-        <Button
-            onPress = {() => navService.navigate('productEdit')}
-            title="Add"
-        />
-    )
+        <View style={styles.container}>
+            <Button
+                onPress = {() => navService.navigate('mapView')}
+                title="My Location"
+            />
+            <Button
+                onPress = {() => navService.navigate('productEdit')}
+                title="Add"
+            />
+        </View>
+    ),
+});
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    }
 });
