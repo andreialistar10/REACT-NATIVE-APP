@@ -1,29 +1,53 @@
 import { getLogger } from "../core";
-import React from "react";
-import { View, StyleSheet } from 'react-native';
+import React, { useState, useContext, useEffect } from "react";
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { ProductContext } from './ProductContext';
 import MapView from 'react-native-maps';
 
 const log = getLogger('MyMap');
 
+const initialState = {
+    latitude: 0,
+    longitude: 0,
+    isLoading: true
+};
+
 export const MyMap = () => {
     log('render');
+    const [state, setState] = useState(initialState);
+    const {getCurrentLocation} = useContext(ProductContext);
+    useEffect(() => {
+       log('didMount');
+       if (state.isLoading)
+           getCurrentLocation()
+               .then(coordinate => {
+                  log(coordinate);
+                  const {latitude, longitude} = coordinate;
+                  setState({latitude,longitude,isLoading: false});
+               });
+        return () => {
+            log('willUnmount');
+        }
+    });
     return (
         <ProductContext.Consumer>
-            {() => (
+            {() => {
+                const {latitude, longitude, isLoading} = state;
+                return (
                 <View style ={styles.container}>
-                    <MapView
+                    <ActivityIndicator animating = {isLoading} size = 'large'/>
+                    {!isLoading && <MapView
                         style={styles.map}
                         initialRegion = {{
-                            latitude: 45,
-                            longitude: 26,
+                            latitude: latitude,
+                            longitude: longitude,
                             latitudeDelta: 0.0922,
                             longitudeDelta: 0.0421,
                         }}
                         showsUserLocation={true}
-                    />
+                    />}
                 </View>
-            )}
+            )}}
         </ProductContext.Consumer>
     )
 };

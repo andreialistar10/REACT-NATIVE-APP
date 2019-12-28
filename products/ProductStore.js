@@ -68,7 +68,7 @@ export const ProductStore = ({children}) => {
                                         .then((products) => addAllProducts(products))
                                         .catch(loadingError => {
                                             log('load products failed');
-                                            setState({isLoading: false, loadingError})
+                                            setState({isLoading: false, loadingError});
                                         });
                                 });
                         }
@@ -142,8 +142,13 @@ export const ProductStore = ({children}) => {
             });
     });
 
+    const getCurrentLocation = useCallback(async () => {
+        log('getCurrentLocation started');
+        return Promise.resolve({latitude:45, longitude:26});
+    });
+
     log('render', isLoading);
-    const value = {...state, onSubmit, addNewProduct, updateProduct, logout, getAllProductsFromLocalStorage};
+    const value = {...state, onSubmit, addNewProduct, updateProduct, logout, getAllProductsFromLocalStorage, getCurrentLocation};
     return (
         <ProductContext.Provider value={value}>
             {children}
